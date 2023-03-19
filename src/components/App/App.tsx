@@ -15,7 +15,7 @@ import { OsmAuthProvider } from '../utils/OsmAuthContext';
 import { FeaturePreview } from '../FeaturePreview/FeaturePreview';
 import { TitleAndMetaTags } from '../../helpers/TitleAndMetaTags';
 import { InstallDialog } from '../HomepagePanel/InstallDialog';
-import { setIntlForSSR } from '../../services/intl';
+import { changeLang, setIntlForSSR } from "../../services/intl";
 
 const usePersistMapView = () => {
   const { view } = useMapStateContext();
@@ -95,6 +95,12 @@ const App = ({ featureFromRouter, initialMapView, hpCookie }) => {
 };
 App.getInitialProps = async (ctx) => {
   await setIntlForSSR(ctx);
+
+  // check if route is in "allowed langauges" then call changeLang() and return a redirect
+  if (ctx.pathname === '/en' || ctx.pathname === '/de') {
+    changeLang(ctx.pathname.substr(1));
+    return { statusCode: 301, redirect: '/' };
+  }
 
   const { hideHomepage: hpCookie } = nextCookies(ctx);
   const featureFromRouter = await getInititalFeature(ctx);
