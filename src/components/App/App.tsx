@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 
 import nextCookies from 'next-cookies';
 import Router, { useRouter } from 'next/router';
+import getConfig from 'next/config';
 import FeaturePanel from '../FeaturePanel/FeaturePanel';
 import Map from '../Map/Map';
 import SearchBox from '../SearchBox/SearchBox';
@@ -15,7 +16,7 @@ import { OsmAuthProvider } from '../utils/OsmAuthContext';
 import { FeaturePreview } from '../FeaturePreview/FeaturePreview';
 import { TitleAndMetaTags } from '../../helpers/TitleAndMetaTags';
 import { InstallDialog } from '../HomepagePanel/InstallDialog';
-import { changeLang, setIntlForSSR } from "../../services/intl";
+import { setIntlForSSR } from '../../services/intl';
 
 const usePersistMapView = () => {
   const { view } = useMapStateContext();
@@ -96,9 +97,13 @@ const App = ({ featureFromRouter, initialMapView, hpCookie }) => {
 App.getInitialProps = async (ctx) => {
   await setIntlForSSR(ctx);
 
-  // check if route is in "allowed langauges" then call changeLang() and return a redirect
-  if (ctx.pathname === '/en' || ctx.pathname === '/de') {
-    changeLang(ctx.pathname.substr(1));
+  const {
+    publicRuntimeConfig: { languages },
+  } = getConfig();
+
+  if (ctx.query?.lang in languages) {
+    ctx.res.setHeader('set-cookie', [`lang=${ctx.query.lang}`]); // TODO this doesnt work
+    console.log(ctx.res);
     return { statusCode: 301, redirect: '/' };
   }
 

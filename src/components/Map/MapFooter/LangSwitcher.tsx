@@ -1,29 +1,29 @@
-import getConfig from "next/config";
-import React from "react";
-import { Menu, MenuItem } from "@material-ui/core";
-import { useBoolState } from "../../helpers";
-import { changeLang, intl, t } from "../../../services/intl";
-import { useRouter } from "next/router";
+import getConfig from 'next/config';
+import React from 'react';
+import { Menu, MenuItem } from '@material-ui/core';
+import { useRouter } from 'next/router';
+import { useBoolState } from '../../helpers';
+import { changeLang, intl, t } from '../../../services/intl';
 
 const getLink = (lang, path) => {
   const current = intl.lang;
-  return `/${(lang === current ? '' : lang)}${path}`;
-}
+  return `${path}${lang === current ? '' : `?lang=${lang}`}`;
+};
 
 export const LangSwitcher = () => {
   const {
     publicRuntimeConfig: { languages },
   } = getConfig();
-  const { asPath } = useRouter()
+  const { asPath } = useRouter();
   const anchorRef = React.useRef();
   const [opened, open, close] = useBoolState(false);
 
-  const setLang = (k) => {
-    changeLang(k);
+  const getLangSetter = (lang) => (e) => {
+    e.preventDefault();
+    changeLang(lang);
     close();
   };
 
-  // TODO make a link and allow google to index all langs
   return (
     <>
       <Menu
@@ -33,11 +33,13 @@ export const LangSwitcher = () => {
         open={opened}
         onClose={close}
       >
-        {Object.entries(languages).map(([k, name]) => (
-          <MenuItem key={k} onClick={(e) => {
-            e.preventDefault();
-            setLang(k);
-          }} component='a' href={getLink(k, asPath)}>
+        {Object.entries(languages).map(([lang, name]) => (
+          <MenuItem
+            key={lang}
+            component="a"
+            href={getLink(lang, asPath)}
+            onClick={getLangSetter(lang)}
+          >
             {name}
           </MenuItem>
         ))}
