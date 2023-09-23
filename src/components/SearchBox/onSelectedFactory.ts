@@ -1,5 +1,6 @@
 import Router from 'next/router';
 import maplibregl from 'maplibre-gl';
+import { router } from 'next/client';
 import { getShortId, getUrlOsmId } from '../../services/helpers';
 import { addFeatureCenterToCache } from '../../services/osmApi';
 import { getGlobalMap } from '../../services/mapStorage';
@@ -57,11 +58,14 @@ const fitBounds = (option, panelShown = false) => {
 export const onSelectedFactory =
   (setFeature, setPreview, mobileMode, bbox) => (e, option) => {
     if (option.preset) {
-      performOverpassSearch(bbox, option.preset.presetForSearch.tags).then(
-        () => {
-          // todo
-        },
-      );
+      // change url to /category
+      console.log(option.preset.presetForSearch, 'asdf');
+      Router.push(`/category/${option.preset.presetForSearch.key}`);
+      // performOverpassSearch(bbox, option.preset.presetForSearch.tags).then(
+      //   () => {
+      //     // todo
+      //   },
+      // );
       return;
     }
 
